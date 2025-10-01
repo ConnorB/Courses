@@ -1,0 +1,101 @@
+---
+title: "Tree Height Lab"
+author: "CLB"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+```
+
+```{r}
+#Load data, set Date, and add date label for lab section
+treeDat <- read_csv("~/Dropbox/Classes/Field Ecology/Week2/TreeHeights.csv") %>% 
+  mutate(Date = mdy(Date),
+         Lab = wday(Date, label = T))
+  
+  
+
+#Mean, SD, and Count for all data
+treeStats <- treeDat %>%
+  group_by(tree_tag) %>%
+  summarize(
+    mean_dbh = mean(dbh, na.rm = TRUE),
+    sd_dbh = sd(dbh, na.rm = TRUE),
+    count_dbh = sum(!is.na(dbh)),
+    mean_tree_height = mean(tree_height, na.rm = TRUE),
+    sd_tree_height = sd(tree_height, na.rm = TRUE),
+    count_tree_height = sum(!is.na(tree_height))
+  )
+
+#Mean, SD, and Count for each class
+classStats <- treeDat %>%
+  group_by(tree_tag, Lab) %>%
+  summarize(
+    mean_dbh = mean(dbh, na.rm = TRUE),
+    sd_dbh = sd(dbh, na.rm = TRUE),
+    count_dbh = sum(!is.na(dbh)),
+    mean_tree_height = mean(tree_height, na.rm = TRUE),
+    sd_tree_height = sd(tree_height, na.rm = TRUE),
+    count_tree_height = sum(!is.na(tree_height))
+  )
+
+```
+
+```{r}
+#Boxplot of tree height grouped by tree_tag
+treeDat %>% 
+  ggplot(aes(x = tree_tag, y = tree_height, fill = tree_tag)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(title = "", 
+       x = "Tree Tag", 
+       y = "Tree Height (m)") +
+  theme_few()+
+  theme(legend.position = "none") -> allSec
+allSec
+
+#Boxplot of tree height grouped by tree_tag and lab section
+treeDat %>% 
+  ggplot(aes(x = tree_tag, y = tree_height, fill = tree_tag)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(title = "", 
+       x = "Tree Tag", 
+       y = "Tree Height (m)") +
+  theme_few()+
+  theme(legend.position = "none")+
+  facet_wrap(~Lab, ncol = 1) -> labSec
+labSec
+
+ggsave("All.png", allSec, "~/Dropbox/Classes/Field Ecology/Week2/", device = "png", dpi = "retina")
+ggsave("labSec.png", labSec, "~/Dropbox/Classes/Field Ecology/Week2", device = "png", dpi = "retina")
+```
+
+```{r}
+#Boxplot of tree height grouped by tree_tag
+treeDat %>% 
+  ggplot(aes(x = tree_tag, y = dbh, fill = tree_tag)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(title = "Field Ecology DBH", 
+       x = "Tree Tag", 
+       y = "DBH (m)") +
+  theme_few()+
+  theme(legend.position = "none")
+
+
+#Boxplot of tree height grouped by tree_tag and lab section
+treeDat %>% 
+  ggplot(aes(x = tree_tag, y = dbh, fill = tree_tag)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(title = "Field Ecology DBH", 
+       x = "Tree Tag", 
+       y = "DBH (m)") +
+  theme_few()+
+  theme(legend.position = "none")+
+  facet_wrap(~Lab, ncol = 1)
+```
